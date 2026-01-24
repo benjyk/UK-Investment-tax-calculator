@@ -7,10 +7,14 @@ namespace InvestmentTaxCalculator.Parser.InteractiveBrokersXml;
 
 public static class IBXmlStockSplitParser
 {
+    private static readonly HashSet<string> _splitTypes = ["FS", "RS", "FI"];
+
     public static IList<StockSplit> ParseXml(XElement document)
     {
-        IEnumerable<XElement> filteredElements = document.Descendants("CorporateAction").Where(row => row.GetAttribute("type") == "FS");
-        return filteredElements.Select(StockSplitMaker).Where(dividend => dividend != null).ToList()!;
+        IEnumerable<XElement> filteredElements = document.Descendants("CorporateAction")
+            .Where(row => _splitTypes.Contains(row.GetAttribute("type")))
+            .Where(row => !row.GetAttribute("symbol").EndsWith(".OLD"));
+        return filteredElements.Select(StockSplitMaker).Where(split => split != null).ToList()!;
     }
 
     private static StockSplit StockSplitMaker(XElement element)

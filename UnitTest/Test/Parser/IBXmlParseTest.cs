@@ -54,11 +54,38 @@ public class IBXmlParseTest
     public void TestReadingIBXmlCorporateActions()
     {
         IList<StockSplit> parsedData = IBXmlStockSplitParser.ParseXml(_xmlDoc);
-        parsedData.Count.ShouldBe(1);
+        parsedData.Count.ShouldBe(3);
         parsedData[0].AssetName.ShouldBe("ABC");
         parsedData[0].Date.ShouldBe(DateTime.Parse("03-May-21 20:25:00", CultureInfo.InvariantCulture));
         parsedData[0].SplitFrom.ShouldBe(1);
         parsedData[0].SplitTo.ShouldBe(2);
+    }
+
+    [Fact]
+    public void TestReadingIBXmlReverseSplit()
+    {
+        IList<StockSplit> parsedData = IBXmlStockSplitParser.ParseXml(_xmlDoc);
+        StockSplit reverseSplit = parsedData.Single(s => s.AssetName == "DNA");
+        reverseSplit.Date.ShouldBe(DateTime.Parse("19-Aug-24 20:25:00", CultureInfo.InvariantCulture));
+        reverseSplit.SplitFrom.ShouldBe(40);
+        reverseSplit.SplitTo.ShouldBe(1);
+    }
+
+    [Fact]
+    public void TestReadingIBXmlForwardSplitTypeFI()
+    {
+        IList<StockSplit> parsedData = IBXmlStockSplitParser.ParseXml(_xmlDoc);
+        StockSplit forwardSplit = parsedData.Single(s => s.AssetName == "LRCX");
+        forwardSplit.Date.ShouldBe(DateTime.Parse("02-Oct-24 20:25:00", CultureInfo.InvariantCulture));
+        forwardSplit.SplitFrom.ShouldBe(1);
+        forwardSplit.SplitTo.ShouldBe(10);
+    }
+
+    [Fact]
+    public void TestOldSymbolEntriesExcluded()
+    {
+        IList<StockSplit> parsedData = IBXmlStockSplitParser.ParseXml(_xmlDoc);
+        parsedData.ShouldNotContain(s => s.AssetName.EndsWith(".OLD"));
     }
 
     [Fact]
