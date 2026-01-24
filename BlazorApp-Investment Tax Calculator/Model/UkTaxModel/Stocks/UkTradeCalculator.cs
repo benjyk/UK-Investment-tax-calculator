@@ -18,10 +18,27 @@ public class UkTradeCalculator(UkSection104Pools section104Pools, ITradeAndCorpo
 {
     public List<ITradeTaxCalculation> CalculateTax()
     {
+        ApplySymbolChanges();
         List<ITradeTaxCalculation> tradeTaxCalculations = [.. tradeTaxCalculationFactory.GroupTrade(tradeList.Trades)];
         GroupedTradeContainer<ITradeTaxCalculation> _tradeContainer = new(tradeTaxCalculations, tradeList.CorporateActions);
         UkMatchingRules.ApplyUkTaxRuleSequence(MatchTrade, _tradeContainer, section104Pools);
         return tradeTaxCalculations;
+    }
+
+    private void ApplySymbolChanges()
+    {
+        var symbolChanges = tradeList.CorporateActions.OfType<SymbolChange>().ToList();
+        foreach (var change in symbolChanges)
+        {
+            foreach (var trade in tradeList.Trades.Where(t => t.AssetName == change.OldAssetName))
+            {
+                trade.AssetName = change.AssetName;
+            }
+            foreach (var action in tradeList.CorporateActions.Where(a => a != change && a.AssetName == change.OldAssetName))
+            {
+                action.AssetName = change.AssetName;
+            }
+        }
     }
 
     public void MatchTrade(ITradeTaxCalculation trade1, ITradeTaxCalculation trade2, TaxMatchType taxMatchType, TaxableStatus taxableStatus)

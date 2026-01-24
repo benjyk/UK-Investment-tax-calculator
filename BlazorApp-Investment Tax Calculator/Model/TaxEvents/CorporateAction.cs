@@ -10,6 +10,7 @@ namespace InvestmentTaxCalculator.Model.TaxEvents;
 [JsonDerivedType(typeof(ExcessReportableIncome), "eri")]
 [JsonDerivedType(typeof(FundEqualisation), "fundEqualisation")]
 [JsonDerivedType(typeof(ReturnOfCapitalCorporateAction), "roc")]
+[JsonDerivedType(typeof(SymbolChange), "symbolChange")]
 public abstract record CorporateAction : TaxEvent
 {
     public abstract MatchAdjustment TradeMatching(ITradeTaxCalculation trade1, ITradeTaxCalculation trade2, MatchAdjustment matchAdjustment);

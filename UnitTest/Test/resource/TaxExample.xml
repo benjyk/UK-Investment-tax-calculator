@@ -55,6 +55,8 @@
 				<CorporateAction symbol="DNA.OLD" description="DNA(US37611X1000) SPLIT 1 FOR 40 (DNA.OLD, GINKGO BIOWORKS HOLDINGS INC, US37611X1000)" dateTime="19-Aug-24 20:25:00" quantity="-6600" type="RS" actionID="141238766"/>
 				<CorporateAction symbol="LRCX" description="LRCX(US5128071082) SPLIT 10 FOR 1 (LRCX, LAM RESEARCH CORP, US5128073062)" dateTime="02-Oct-24 20:25:00" quantity="80" type="FI" actionID="143390303"/>
 				<CorporateAction symbol="LRCX.OLD" description="LRCX(US5128071082) SPLIT 10 FOR 1 (LRCX.OLD, LAM RESEARCH CORP, US5128071082)" dateTime="02-Oct-24 20:25:00" quantity="-8" type="FI" actionID="143390303"/>
+				<CorporateAction symbol="RDW" description="GNPK(KYG382451097) CUSIP/ISIN CHANGE TO (US75776W1036) (RDW, REDWIRE CORP, US75776W1036)" dateTime="02-Sep-21 20:25:00" quantity="1000" type="IC" actionID="101204925"/>
+				<CorporateAction symbol="RDW" description="GNPK(KYG382451097) CUSIP/ISIN CHANGE TO (US75776W1036) (RDW, REDWIRE CORP, US75776W1036)" dateTime="02-Sep-21 20:25:00" quantity="-1000" type="IC" actionID="101204925"/>
 			</CorporateActions>
 			<CashTransactions>
 				<CashTransaction settleDate="02-Feb-21" symbol="ABCD" isin="JP12345" description="ABC CASH DIVIDEND - JP TAX" amount="-30000" type="Withholding Tax" currency="JPY" fxRateToBase="0.00555" levelOfDetail="DETAIL"/>

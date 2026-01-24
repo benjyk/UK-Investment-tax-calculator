@@ -89,6 +89,23 @@ public class IBXmlParseTest
     }
 
     [Fact]
+    public void TestReadingIBXmlSymbolChange()
+    {
+        IList<SymbolChange> parsedData = IBXmlSymbolChangeParser.ParseXml(_xmlDoc);
+        parsedData.Count.ShouldBe(1);
+        parsedData[0].AssetName.ShouldBe("RDW");
+        parsedData[0].OldAssetName.ShouldBe("GNPK");
+        parsedData[0].Date.ShouldBe(DateTime.Parse("02-Sep-21 20:25:00", CultureInfo.InvariantCulture));
+    }
+
+    [Fact]
+    public void TestNegativeQuantitySymbolChangeExcluded()
+    {
+        IList<SymbolChange> parsedData = IBXmlSymbolChangeParser.ParseXml(_xmlDoc);
+        parsedData.Count.ShouldBe(1); // Only positive quantity entry parsed
+    }
+
+    [Fact]
     public void TestUnknownCountryCodeInDividend()
     {
         XElement xmlDoc = XElement.Parse(@"<CashTransactions><CashTransaction settleDate=""02-Feb-21"" symbol=""ABCD"" isin=""AA12345"" description=""ABC CASH DIVIDEND - JP TAX"" amount=""-30000"" type=""Withholding Tax"" currency=""JPY"" fxRateToBase=""0.00555"" levelOfDetail=""DETAIL""/></CashTransactions>");
