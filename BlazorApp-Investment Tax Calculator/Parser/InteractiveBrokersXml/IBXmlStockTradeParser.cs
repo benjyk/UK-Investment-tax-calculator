@@ -10,7 +10,7 @@ public static class IBXmlStockTradeParser
     public static IList<Trade> ParseXml(XElement document)
     {
         IEnumerable<XElement> filteredElements = document.Descendants("Order").Where(row => row.GetAttribute("levelOfDetail") == "ORDER" &&
-                                                 row.GetAttribute("assetCategory") == "STK");
+                                                 row.GetAttribute("assetCategory") is "STK" or "WAR");
         return filteredElements.Select(element => XmlParserHelper.ParserExceptionManager(TradeMaker, element)).Where(trade => trade != null).ToList()!;
     }
 
