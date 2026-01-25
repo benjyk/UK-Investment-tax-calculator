@@ -7,10 +7,12 @@ namespace InvestmentTaxCalculator.Parser.InteractiveBrokersXml;
 
 public static class IBXmlOptionTradeParser
 {
+    private static readonly HashSet<string> _optionAssetCategories = ["OPT", "FOP", "FSFOP", "WAR"];
+
     public static IList<OptionTrade> ParseXml(XElement document)
     {
         IEnumerable<XElement> filteredElements = document.Descendants("Order").Where(row => row.GetAttribute("levelOfDetail") == "ORDER" &&
-                                                                                                             row.GetAttribute("assetCategory") is "OPT" or "FOP" or "FSFOP");
+                                                                                                             _optionAssetCategories.Contains(row.GetAttribute("assetCategory")));
         return filteredElements.Select(element => XmlParserHelper.ParserExceptionManager(OptionTradeMaker, element))
                                                                                           .Where(trade => trade != null).ToList()!;
 
@@ -31,12 +33,7 @@ public static class IBXmlOptionTradeParser
             StrikePrice = element.BuildMoney("strike", "currency"),
             ExpiryDate = XmlParserHelper.ParseDate(element.GetAttribute("expiry")),
             Multiplier = decimal.Parse(element.GetAttribute("multiplier")),
-            PUTCALL = element.GetAttribute("putCall") switch
-            {
-                "C" => PUTCALL.CALL,
-                "P" => PUTCALL.PUT,
-                _ => throw new ParseException($"Unknown putCall {element.GetAttribute("putCall")} for {element}")
-            },
+            PUTCALL = GetPutCall(element),
             TradeReason = element.GetAttribute("notes") switch
             {
                 string s when s.Split(";").Contains("Ex") => TradeReason.OwnerExerciseOption,
@@ -45,6 +42,21 @@ public static class IBXmlOptionTradeParser
                 _ => TradeReason.OrderedTrade
             },
             Isin = element.GetAttribute("isin")
+        };
+    }
+
+    private static PUTCALL GetPutCall(XElement element)
+    {
+        string putCallValue = element.GetAttribute("putCall");
+        string assetCategory = element.GetAttribute("assetCategory");
+
+        return putCallValue switch
+        {
+            "C" => PUTCALL.CALL,
+            "P" => PUTCALL.PUT,
+            // Warrants are call options - default to CALL if putCall is empty
+            "" when assetCategory == "WAR" => PUTCALL.CALL,
+            _ => throw new ParseException($"Unknown putCall '{putCallValue}' for {element}")
         };
     }
 }

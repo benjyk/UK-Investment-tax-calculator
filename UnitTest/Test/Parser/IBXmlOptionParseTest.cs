@@ -44,4 +44,72 @@ public class IBXmlOptionTradeParserTests
         trade.PUTCALL.ShouldBe(PUTCALL.CALL);
         trade.TradeReason.ShouldBe(TradeReason.OwnerExerciseOption);
     }
+
+    [Fact]
+    public void ParseXml_WarrantTrade_ShouldParseAsCallOption()
+    {
+        string xmlContent = @"
+                <FlexQueryResponse queryName='Tax' type='AF'>
+                    <FlexStatements count='1'>
+                        <FlexStatement accountId='TestAccount' fromDate='04-Jan-21' toDate='31-Dec-21' period='Last365CalendarDays' whenGenerated='01-Jan-22 00:00:00'>
+                            <Trades>
+                                <Order currency='USD' fxRateToBase='0.72884' assetCategory='WAR' symbol='FPAC WS' isin='KYG3312L1115'
+                                       description='FPAC 07DEC25 11.5 C' underlyingSymbol='FPAC' multiplier='1' strike='11.5' expiry='07-Dec-25'
+                                       putCall='' dateTime='23-Sep-21 11:37:11' quantity='460' tradePrice='1.8' tradeMoney='828' proceeds='-828'
+                                       taxes='0' ibCommission='-1.78' ibCommissionCurrency='USD' openCloseIndicator='O' notes='P' buySell='BUY'
+                                       levelOfDetail='ORDER' />
+                            </Trades>
+                        </FlexStatement>
+                    </FlexStatements>
+                </FlexQueryResponse>";
+
+        XElement document = XElement.Parse(xmlContent);
+
+        IList<OptionTrade> result = IBXmlOptionTradeParser.ParseXml(document);
+
+        result.ShouldNotBeNull();
+        result.Count.ShouldBe(1);
+
+        var trade = result[0];
+        trade.AssetName.ShouldBe("FPAC WS");
+        trade.Description.ShouldBe("FPAC 07DEC25 11.5 C");
+        trade.Underlying.ShouldBe("FPAC");
+        trade.StrikePrice.ShouldBe(new WrappedMoney(11.5m, "usd"));
+        trade.ExpiryDate.ShouldBe(new DateTime(2025, 12, 7, 0, 0, 0, DateTimeKind.Local));
+        trade.PUTCALL.ShouldBe(PUTCALL.CALL); // Warrants default to CALL
+        trade.Multiplier.ShouldBe(1m);
+        trade.Quantity.ShouldBe(460m);
+        trade.AcquisitionDisposal.ShouldBe(TradeType.ACQUISITION);
+    }
+
+    [Fact]
+    public void ParseXml_WarrantExpired_ShouldParseWithExpiredTradeReason()
+    {
+        string xmlContent = @"
+                <FlexQueryResponse queryName='Tax' type='AF'>
+                    <FlexStatements count='1'>
+                        <FlexStatement accountId='TestAccount' fromDate='04-Jan-21' toDate='31-Dec-21' period='Last365CalendarDays' whenGenerated='01-Jan-22 00:00:00'>
+                            <Trades>
+                                <Order currency='USD' fxRateToBase='0.75' assetCategory='WAR' symbol='FPAC WS' isin='KYG3312L1115'
+                                       description='FPAC 07DEC25 11.5 C' underlyingSymbol='FPAC' multiplier='1' strike='11.5' expiry='07-Dec-25'
+                                       putCall='' dateTime='07-Dec-25 16:00:00' quantity='-460' tradePrice='0' tradeMoney='0' proceeds='0'
+                                       taxes='0' ibCommission='0' ibCommissionCurrency='USD' openCloseIndicator='C' notes='Ep' buySell='SELL'
+                                       levelOfDetail='ORDER' />
+                            </Trades>
+                        </FlexStatement>
+                    </FlexStatements>
+                </FlexQueryResponse>";
+
+        XElement document = XElement.Parse(xmlContent);
+
+        IList<OptionTrade> result = IBXmlOptionTradeParser.ParseXml(document);
+
+        result.ShouldNotBeNull();
+        result.Count.ShouldBe(1);
+
+        var trade = result[0];
+        trade.TradeReason.ShouldBe(TradeReason.Expired);
+        trade.AcquisitionDisposal.ShouldBe(TradeType.DISPOSAL);
+        trade.PUTCALL.ShouldBe(PUTCALL.CALL);
+    }
 }
