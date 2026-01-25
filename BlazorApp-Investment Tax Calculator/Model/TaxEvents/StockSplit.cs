@@ -23,6 +23,8 @@ public record StockSplit : CorporateAction, IChangeSection104
         ITradeTaxCalculation laterTrade = trade1.Date > trade2.Date ? trade1 : trade2;
         if (AssetName != trade1.AssetName || AssetName != trade2.AssetName) return matchAdjustment;
         if (earlierTrade.Date > Date || Date > laterTrade.Date) return matchAdjustment;
+        // Don't apply split adjustment for same-day trades - they're all either pre-split or post-split
+        if (earlierTrade.Date.Date == laterTrade.Date.Date) return matchAdjustment;
         matchAdjustment.MatchAdjustmentFactor *= (decimal)SplitTo / SplitFrom;
         matchAdjustment.CorporateActions.Add(this);
         return matchAdjustment;

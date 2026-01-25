@@ -10,6 +10,7 @@ using InvestmentTaxCalculator.Parser;
 using InvestmentTaxCalculator.Services;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace UnitTest.Helper;
 
@@ -58,7 +59,7 @@ public static class TradeCalculationHelper
     {
         residencyStatusRecord ??= new();
         TradeTaxCalculationFactory tradeTaxCalculationFactory = new(residencyStatusRecord);
-        return new UkTradeCalculator(section104Pools, tradeList, tradeTaxCalculationFactory);
+        return new UkTradeCalculator(section104Pools, tradeList, tradeTaxCalculationFactory, new NullLogger<UkTradeCalculator>());
     }
 
     public static UkFutureTradeCalculator CreateUkFutureTradeCalculator(UkSection104Pools section104Pools, ITradeAndCorporateActionList tradeList, ResidencyStatusRecord? residencyStatusRecord = null)

@@ -11,9 +11,13 @@ public static class IBXmlStockSplitParser
 
     public static IList<StockSplit> ParseXml(XElement document)
     {
+        // IBKR reports each split as two entries (one for shares removed, one for shares added)
+        // with the same actionID. Group by actionID to avoid duplicates.
         IEnumerable<XElement> filteredElements = document.Descendants("CorporateAction")
             .Where(row => _splitTypes.Contains(row.GetAttribute("type")))
-            .Where(row => !row.GetAttribute("symbol").EndsWith(".OLD"));
+            .Where(row => !row.GetAttribute("symbol").EndsWith(".OLD"))
+            .GroupBy(row => row.GetAttribute("actionID"))
+            .Select(group => group.First());
         return filteredElements.Select(StockSplitMaker).Where(split => split != null).ToList()!;
     }
 

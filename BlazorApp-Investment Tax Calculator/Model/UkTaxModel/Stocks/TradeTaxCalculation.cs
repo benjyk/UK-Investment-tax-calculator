@@ -88,7 +88,10 @@ public class TradeTaxCalculation : ITradeTaxCalculation
     {
         if (demandedQty - UnmatchedQty > 0.00000000000000000000000001m)
         {
-            throw new ArgumentException($"Unexpected {nameof(demandedQty)} in MatchQty {demandedQty} larger than {nameof(UnmatchedQty)} {UnmatchedQty}");
+            throw new ArgumentException(
+                $"Unexpected {nameof(demandedQty)} in MatchQty {demandedQty} larger than {nameof(UnmatchedQty)} {UnmatchedQty} | " +
+                $"Trade: {AssetName}, Date={Date:yyyy-MM-dd}, Type={AcquisitionDisposal}, TotalQty={TotalQty}, " +
+                $"MatchHistory count={MatchHistory.Count}");
         }
         else if (demandedQty - UnmatchedQty > -0.00000000000000000000000001m && demandedQty - UnmatchedQty < 0)
         {
