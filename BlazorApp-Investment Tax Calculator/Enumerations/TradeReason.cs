@@ -11,5 +11,7 @@ public enum TradeReason
     [Description("Option expired")]
     Expired,
     [Description("Ordered trade")]
-    OrderedTrade
+    OrderedTrade,
+    [Description("Corporate action")]
+    CorporateAction
 }

@@ -10,10 +10,24 @@ public class UkOptionTradeCalculator(UkSection104Pools section104Pools, ITradeAn
 {
     public List<ITradeTaxCalculation> CalculateTax()
     {
+        ApplySymbolChanges();
         List<OptionTradeTaxCalculation> tradeTaxCalculations = [.. tradeTaxCalculationFactory.GroupOptionTrade(tradeList.OptionTrades)];
         GroupedTradeContainer<OptionTradeTaxCalculation> _tradeContainer = new(tradeTaxCalculations, tradeList.CorporateActions);
         UkMatchingRules.ApplyUkTaxRuleSequence(MatchTrade, _tradeContainer, section104Pools);
         return [.. tradeTaxCalculations.Cast<ITradeTaxCalculation>()];
+    }
+
+    private void ApplySymbolChanges()
+    {
+        var symbolChanges = tradeList.CorporateActions.OfType<SymbolChange>().ToList();
+        foreach (var change in symbolChanges)
+        {
+            // Only rename option trades that occurred BEFORE the symbol change date
+            foreach (var trade in tradeList.OptionTrades.Where(t => t.AssetName == change.OldAssetName && t.Date < change.Date))
+            {
+                trade.AssetName = change.AssetName;
+            }
+        }
     }
 
     public void MatchTrade(OptionTradeTaxCalculation trade1, OptionTradeTaxCalculation trade2, TaxMatchType taxMatchType, TaxableStatus taxableStatus)

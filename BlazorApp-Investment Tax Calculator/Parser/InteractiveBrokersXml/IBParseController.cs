@@ -19,9 +19,11 @@ public class IBParseController(AssetTypeToLoadSetting assetTypeToLoadSetting) : 
             result.CorporateActions.AddRange(IBXmlStockSplitParser.ParseXml(xml));
             result.CorporateActions.AddRange(IBXmlSymbolChangeParser.ParseXml(xml));
             if (assetTypeToLoadSetting.LoadStocks) result.Trades.AddRange(IBXmlStockTradeParser.ParseXml(xml));
+            if (assetTypeToLoadSetting.LoadStocks) result.Trades.AddRange(IBXmlMergerParser.ParseStockTrades(xml));
             if (assetTypeToLoadSetting.LoadFutures) result.FutureContractTrades.AddRange(IBXmlFutureTradeParser.ParseXml(xml));
             if (assetTypeToLoadSetting.LoadFx) result.Trades.AddRange(_xmlFxParser.ParseXml(xml));
             if (assetTypeToLoadSetting.LoadOptions) result.OptionTrades.AddRange(IBXmlOptionTradeParser.ParseXml(xml));
+            if (assetTypeToLoadSetting.LoadOptions) result.OptionTrades.AddRange(IBXmlMergerParser.ParseWarrantTrades(xml));
             if (assetTypeToLoadSetting.LoadOptions) result.CashSettlements.AddRange(IBXmlCashSettlementParser.ParseXml(xml));
             if (assetTypeToLoadSetting.LoadInterestIncome) result.InterestIncomes.AddRange(IBXmlInterestIncomeParser.ParseXml(xml));
         }

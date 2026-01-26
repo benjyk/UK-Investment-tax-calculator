@@ -56,13 +56,18 @@ public record TradePairSorter<T> where T : ITradeTaxCalculation
     /// </summary>
     public void UpdateQuantity()
     {
-        _matchQuantity = Math.Min(EarlierTrade.UnmatchedQty, LatterTrade.UnmatchedQty) / _matchQuantityAdjustmentFactor;
+        // Convert later trade's qty to earlier trade's units before taking minimum
+        decimal laterInEarlierUnits = LatterTrade.UnmatchedQty / _matchQuantityAdjustmentFactor;
+        _matchQuantity = Math.Min(EarlierTrade.UnmatchedQty, laterInEarlierUnits);
     }
 
     public void SetQuantityAdjustmentFactor(decimal factor)
     {
         if (factor == 0) throw new ArgumentException("Adjustment factor cannot be zero");
         _matchQuantityAdjustmentFactor = factor;
-        _matchQuantity = Math.Min(EarlierTrade.UnmatchedQty, LatterTrade.UnmatchedQty) / _matchQuantityAdjustmentFactor;
+        // Convert later trade's qty to earlier trade's units before taking minimum
+        // Factor converts earlier→later, so divide to convert later→earlier
+        decimal laterInEarlierUnits = LatterTrade.UnmatchedQty / _matchQuantityAdjustmentFactor;
+        _matchQuantity = Math.Min(EarlierTrade.UnmatchedQty, laterInEarlierUnits);
     }
 }
