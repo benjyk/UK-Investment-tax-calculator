@@ -3,8 +3,8 @@
 		<FlexStatement accountId="TestAccount" fromDate="04-Jan-21" toDate="31-Dec-21" period="Last365CalendarDays" whenGenerated="01-Jan-22 00:00:00">
 			<StmtFunds>
 				<!-- Foreign currencies -->
-				<StatementOfFundsLine currency="DKK" activityCode="DIV" fxRateToBase="0.11857" reportDate="03-Feb-21" activityDescription="RTE(DK0010267129) Cash Dividend DKK 2.50 per Share (Ordinary Dividend)" amount="4000" levelOfDetail="Currency" />
-				<StatementOfFundsLine currency="DKK" activityCode="FRTAX" fxRateToBase="0.11857" reportDate="03-Feb-21" activityDescription="RTE(DK0010267129) Cash Dividend DKK 2.50 per Share - DK Tax" amount="-1080" levelOfDetail="Currency" />
+				<StatementOfFundsLine currency="DKK" activityCode="DIV" fxRateToBase="0.11857" reportDate="03-Feb-21" activityDescription="DKC(DK0000000000) Cash Dividend DKK 2.50 per Share (Ordinary Dividend)" amount="4000" levelOfDetail="Currency" />
+				<StatementOfFundsLine currency="DKK" activityCode="FRTAX" fxRateToBase="0.11857" reportDate="03-Feb-21" activityDescription="DKC(DK0000000000) Cash Dividend DKK 2.50 per Share - DK Tax" amount="-1080" levelOfDetail="Currency" />
 			</StmtFunds>
 			<Trades>
 				<!-- Stock trades -->
@@ -50,13 +50,13 @@
 				<Order currency="USD" fxRateToBase="0.85" assetCategory="OPT" symbol="MSFT  210116C00230000" isin="" description="MSFT 16JAN21 230.0 C" underlyingSymbol="MSFT" multiplier="100" strike="230" expiry="16-Jan-21" putCall="C" dateTime="16-Jan-21 16:00:00" quantity="1"  proceeds="0" taxes="0" ibCommission="0" ibCommissionCurrency="USD" notes="C;Ep" buySell="BUY" levelOfDetail="ORDER" />
 			</Trades>
 			<CorporateActions>
-				<CorporateAction symbol="ABC" description="ABC SPLIT 2 FOR 1" dateTime="03-May-21 20:25:00" type="FS"/>
-				<CorporateAction symbol="DNA" description="DNA(US37611X1000) SPLIT 1 FOR 40 (DNA, GINKGO BIOWORKS HOLDINGS INC, US37611X2099)" dateTime="19-Aug-24 20:25:00" quantity="165" type="RS" actionID="141238766"/>
-				<CorporateAction symbol="DNA.OLD" description="DNA(US37611X1000) SPLIT 1 FOR 40 (DNA.OLD, GINKGO BIOWORKS HOLDINGS INC, US37611X1000)" dateTime="19-Aug-24 20:25:00" quantity="-6600" type="RS" actionID="141238766"/>
-				<CorporateAction symbol="LRCX" description="LRCX(US5128071082) SPLIT 10 FOR 1 (LRCX, LAM RESEARCH CORP, US5128073062)" dateTime="02-Oct-24 20:25:00" quantity="80" type="FI" actionID="143390303"/>
-				<CorporateAction symbol="LRCX.OLD" description="LRCX(US5128071082) SPLIT 10 FOR 1 (LRCX.OLD, LAM RESEARCH CORP, US5128071082)" dateTime="02-Oct-24 20:25:00" quantity="-8" type="FI" actionID="143390303"/>
-				<CorporateAction symbol="RDW" description="GNPK(KYG382451097) CUSIP/ISIN CHANGE TO (US75776W1036) (RDW, REDWIRE CORP, US75776W1036)" dateTime="02-Sep-21 20:25:00" quantity="1000" type="IC" actionID="101204925"/>
-				<CorporateAction symbol="RDW" description="GNPK(KYG382451097) CUSIP/ISIN CHANGE TO (US75776W1036) (RDW, REDWIRE CORP, US75776W1036)" dateTime="02-Sep-21 20:25:00" quantity="-1000" type="IC" actionID="101204925"/>
+				<CorporateAction symbol="ABC" description="ABC SPLIT 2 FOR 1" dateTime="03-May-21 20:25:00" type="FS" actionID="100000001"/>
+				<CorporateAction symbol="XYZ" description="XYZ(US0000000001) SPLIT 1 FOR 40 (XYZ, EXAMPLE CORP, US0000000002)" dateTime="19-Aug-24 20:25:00" quantity="165" type="RS" actionID="100000002"/>
+				<CorporateAction symbol="XYZ.OLD" description="XYZ(US0000000001) SPLIT 1 FOR 40 (XYZ.OLD, EXAMPLE CORP, US0000000001)" dateTime="19-Aug-24 20:25:00" quantity="-6600" type="RS" actionID="100000002"/>
+				<CorporateAction symbol="QRS" description="QRS(US0000000003) SPLIT 10 FOR 1 (QRS, SAMPLE INC, US0000000004)" dateTime="02-Oct-24 20:25:00" quantity="80" type="FI" actionID="100000003"/>
+				<CorporateAction symbol="QRS.OLD" description="QRS(US0000000003) SPLIT 10 FOR 1 (QRS.OLD, SAMPLE INC, US0000000003)" dateTime="02-Oct-24 20:25:00" quantity="-8" type="FI" actionID="100000003"/>
+				<CorporateAction symbol="NWC" description="OLC(KY0000000001) CUSIP/ISIN CHANGE TO (US0000000005) (NWC, NEWCO CORP, US0000000005)" dateTime="02-Sep-21 20:25:00" quantity="1000" type="IC" actionID="100000004"/>
+				<CorporateAction symbol="NWC" description="OLC(KY0000000001) CUSIP/ISIN CHANGE TO (US0000000005) (NWC, NEWCO CORP, US0000000005)" dateTime="02-Sep-21 20:25:00" quantity="-1000" type="IC" actionID="100000004"/>
 			</CorporateActions>
 			<CashTransactions>
 				<CashTransaction settleDate="02-Feb-21" symbol="ABCD" isin="JP12345" description="ABC CASH DIVIDEND - JP TAX" amount="-30000" type="Withholding Tax" currency="JPY" fxRateToBase="0.00555" levelOfDetail="DETAIL"/>

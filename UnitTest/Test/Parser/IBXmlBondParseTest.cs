@@ -19,7 +19,7 @@ public class IBXmlBondParseTest
     {
         XElement xmlDoc = XElement.Parse(@"<Orders>
             <Order accountId=""U1234567"" currency=""USD"" fxRateToBase=""0.80687"" assetCategory=""BOND""
-                symbol=""T 2 1/2 02/28/26"" description=""T 2 1/2 02/28/26"" isin=""US9128286F22""
+                symbol=""T 2 1/2 02/28/26"" description=""T 2 1/2 02/28/26"" isin=""US0000000001""
                 dateTime=""31-Jan-25 14:39:08"" quantity=""25000"" tradePrice=""98.191""
                 tradeMoney=""24547.75"" proceeds=""-24547.75"" taxes=""0""
                 ibCommission=""-5"" ibCommissionCurrency=""USD"" netCash=""-24552.75""
@@ -33,7 +33,7 @@ public class IBXmlBondParseTest
         trade.AssetType.ShouldBe(AssetCategoryType.BOND);
         trade.AcquisitionDisposal.ShouldBe(TradeType.ACQUISITION);
         trade.AssetName.ShouldBe("T 2 1/2 02/28/26");
-        trade.Isin.ShouldBe("US9128286F22");
+        trade.Isin.ShouldBe("US0000000001");
         trade.Quantity.ShouldBe(25000m);
         trade.GrossProceed.Amount.Amount.ShouldBe(24547.75m);
         trade.Date.ShouldBe(DateTime.Parse("31-Jan-25 14:39:08", CultureInfo.InvariantCulture));
@@ -48,7 +48,7 @@ public class IBXmlBondParseTest
     {
         XElement xmlDoc = XElement.Parse(@"<Orders>
             <Order accountId=""U1234567"" currency=""USD"" fxRateToBase=""0.79505"" assetCategory=""BOND""
-                symbol=""T 0 3/8 09/15/24"" description=""T 0 3/8 09/15/24"" isin=""US91282CCX74""
+                symbol=""T 0 3/8 09/15/24"" description=""T 0 3/8 09/15/24"" isin=""US0000000002""
                 dateTime=""02-Apr-24 15:00:01"" quantity=""-1000"" tradePrice=""97.87857125""
                 tradeMoney=""-978.79"" proceeds=""978.79"" taxes=""0""
                 ibCommission=""-6.05"" ibCommissionCurrency=""USD"" netCash=""972.74""
@@ -75,7 +75,7 @@ public class IBXmlBondParseTest
     {
         XElement xmlDoc = XElement.Parse(@"<Orders>
             <Order accountId=""U1234567"" currency=""USD"" fxRateToBase=""0.87085"" assetCategory=""BOND""
-                symbol=""SP 0 11/15/24"" description=""SP 0 11/15/24"" isin=""US912803BD41""
+                symbol=""SP 0 11/15/24"" description=""SP 0 11/15/24"" isin=""US0000000003""
                 dateTime=""01-Nov-22 15:53:56"" quantity=""10000"" tradePrice=""91.2""
                 tradeMoney=""9120"" proceeds=""-9120"" taxes=""0""
                 ibCommission=""-6.5"" ibCommissionCurrency=""USD"" netCash=""-9126.5""
@@ -99,8 +99,8 @@ public class IBXmlBondParseTest
     {
         XElement xmlDoc = XElement.Parse(@"<CorporateActions>
             <CorporateAction accountId=""U1234567"" currency=""USD"" fxRateToBase=""0.79671""
-                assetCategory=""BOND"" symbol=""T 2 1/4 03/31/24"" isin=""US91282CEG24""
-                description=""(US91282CEG24) FULL CALL / EARLY REDEMPTION FOR USD 1.00 PER BOND""
+                assetCategory=""BOND"" symbol=""T 2 1/4 03/31/24"" isin=""US0000000004""
+                description=""(US0000000004) FULL CALL / EARLY REDEMPTION FOR USD 1.00 PER BOND""
                 dateTime=""29-Mar-24 20:25:00"" quantity=""-25000"" proceeds=""25000""
                 value=""0"" fifoPnlRealized=""599.85"" type=""BM""
                 transactionID=""27076129128"" levelOfDetail=""DETAIL"" />
@@ -113,7 +113,7 @@ public class IBXmlBondParseTest
         trade.AssetType.ShouldBe(AssetCategoryType.BOND);
         trade.AcquisitionDisposal.ShouldBe(TradeType.DISPOSAL);
         trade.AssetName.ShouldBe("T 2 1/4 03/31/24");
-        trade.Isin.ShouldBe("US91282CEG24");
+        trade.Isin.ShouldBe("US0000000004");
         trade.Quantity.ShouldBe(25000m);
         trade.GrossProceed.Amount.Amount.ShouldBe(25000m);
         trade.TradeReason.ShouldBe(TradeReason.CorporateAction);
