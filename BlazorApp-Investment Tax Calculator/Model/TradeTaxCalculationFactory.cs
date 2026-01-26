@@ -41,9 +41,13 @@ public class TradeTaxCalculationFactory(ResidencyStatusRecord residencyStatusRec
         var groupedFxTrade = from trade in trades
                              where trade.AssetType == AssetCategoryType.FX
                              group trade by new { trade.AssetName, trade.Date.Date, trade.AcquisitionDisposal };
+        var groupedBondTrade = from trade in trades
+                               where trade.AssetType == AssetCategoryType.BOND
+                               group trade by new { trade.AssetName, trade.Date.Date, trade.AcquisitionDisposal };
         IEnumerable<TradeTaxCalculation> groupedTradeCalculations = groupedTrade.Select(group => new TradeTaxCalculation(group));
         IEnumerable<TradeTaxCalculation> groupedFxTradeCalculations = groupedFxTrade.Select(group => new FxTradeTaxCalculation(group));
-        var groupedList = groupedTradeCalculations.Concat(groupedFxTradeCalculations).ToList();
+        IEnumerable<TradeTaxCalculation> groupedBondTradeCalculations = groupedBondTrade.Select(group => new TradeTaxCalculation(group));
+        var groupedList = groupedTradeCalculations.Concat(groupedFxTradeCalculations).Concat(groupedBondTradeCalculations).ToList();
         SetResidencyStatus(groupedList, residencyStatusRecord);
         return groupedList;
     }

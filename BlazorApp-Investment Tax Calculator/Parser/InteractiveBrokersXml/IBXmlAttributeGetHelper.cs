@@ -49,4 +49,23 @@ public static class IBXmlAttributeGetHelper
         "SELL" => element.BuildDescribedMoney("proceeds", "currency", "fxRateToBase", ""),
         _ => throw new NotImplementedException(),
     };
+
+    /// <summary>
+    /// Build expenses for bond trades. Note: Accrued interest is NOT included here
+    /// as it's taxed separately under the UK accrued income scheme (as income, not capital).
+    /// Accrued interest is parsed separately by IBXmlInterestIncomeParser from StatementOfFundsLine.
+    /// </summary>
+    public static ImmutableList<DescribedMoney> BuildBondExpenses(this XElement element)
+    {
+        List<DescribedMoney> expenses = [];
+        if (element.GetAttribute("ibCommission") != "0")
+        {
+            expenses.Add(element.BuildDescribedMoney("ibCommission", "ibCommissionCurrency", "fxRateToBase", "Commission", true));
+        }
+        if (element.GetAttribute("taxes") != "0")
+        {
+            expenses.Add(element.BuildDescribedMoney("taxes", "currency", "fxRateToBase", "Tax", true));
+        }
+        return [.. expenses];
+    }
 }

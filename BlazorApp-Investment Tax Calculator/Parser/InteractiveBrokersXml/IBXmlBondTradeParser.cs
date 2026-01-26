@@ -1,0 +1,33 @@
+using InvestmentTaxCalculator.Enumerations;
+using InvestmentTaxCalculator.Model.TaxEvents;
+
+using System.Xml.Linq;
+
+namespace InvestmentTaxCalculator.Parser.InteractiveBrokersXml;
+
+public static class IBXmlBondTradeParser
+{
+    public static IList<Trade> ParseXml(XElement document)
+    {
+        IEnumerable<XElement> filteredElements = document.Descendants("Order").Where(row => row.GetAttribute("levelOfDetail") == "ORDER" &&
+                                                 row.GetAttribute("assetCategory") == "BOND");
+        return filteredElements.Select(element => XmlParserHelper.ParserExceptionManager(TradeMaker, element)).Where(trade => trade != null).ToList()!;
+    }
+
+    private static Trade? TradeMaker(XElement element)
+    {
+        return new Trade
+        {
+            AssetType = AssetCategoryType.BOND,
+            AcquisitionDisposal = element.GetTradeType(),
+            AssetName = element.GetAttribute("symbol"),
+            Description = element.GetAttribute("description"),
+            Date = XmlParserHelper.ParseDate(element.GetAttribute("dateTime")),
+            Quantity = element.GetQuantity(),
+            GrossProceed = element.GetGrossProceed(),
+            Expenses = element.BuildBondExpenses(),
+            TradeReason = TradeReason.OrderedTrade,
+            Isin = element.GetAttribute("isin")
+        };
+    }
+}

@@ -15,7 +15,10 @@ public enum AssetCategoryType
     FX,
     [HmrcAssetCategoryType(AssetGroupType.OTHERASSETS)]
     [Description("Option")]
-    OPTION
+    OPTION,
+    [HmrcAssetCategoryType(AssetGroupType.OTHERASSETS)]
+    [Description("Bond")]
+    BOND
 }
 
 public enum AssetGroupType
