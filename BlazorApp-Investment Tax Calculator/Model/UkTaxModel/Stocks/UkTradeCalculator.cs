@@ -37,7 +37,8 @@ public class UkTradeCalculator(UkSection104Pools section104Pools, ITradeAndCorpo
 
     private void ApplySymbolChanges()
     {
-        var symbolChanges = tradeList.CorporateActions.OfType<SymbolChange>().ToList();
+        // Process symbol changes in chronological order so chained changes (A->B->C) work correctly
+        var symbolChanges = tradeList.CorporateActions.OfType<SymbolChange>().OrderBy(c => c.Date).ToList();
         foreach (var change in symbolChanges)
         {
             // Only rename trades that occurred BEFORE the symbol change date

@@ -10,12 +10,12 @@ public static class IBXmlSymbolChangeParser
     public static IList<SymbolChange> ParseXml(XElement document)
     {
         // For IC (ISIN Change) corporate actions, IBKR provides two rows:
-        // - Negative quantity row: symbol attribute contains the NEW symbol
-        // - Positive quantity row: symbol attribute contains the OLD symbol (often with ".OLD" suffix)
-        // We use negative quantity rows to get the correct new symbol.
+        // - Negative quantity row: symbol attribute contains the OLD symbol (often with ".OLD" suffix) - shares removed
+        // - Positive quantity row: symbol attribute contains the NEW symbol - shares received
+        // We use positive quantity rows to get the correct new symbol.
         IEnumerable<XElement> filteredElements = document.Descendants("CorporateAction")
             .Where(row => row.GetAttribute("type") == "IC")
-            .Where(row => IsNegativeQuantity(row));
+            .Where(row => IsPositiveQuantity(row));
         return filteredElements.Select(SymbolChangeMaker).Where(sc => sc != null).ToList()!;
     }
 
@@ -41,9 +41,9 @@ public static class IBXmlSymbolChangeParser
         };
     }
 
-    private static bool IsNegativeQuantity(XElement element)
+    private static bool IsPositiveQuantity(XElement element)
     {
         string quantity = element.GetAttribute("quantity");
-        return !string.IsNullOrEmpty(quantity) && decimal.TryParse(quantity, out decimal qty) && qty < 0;
+        return !string.IsNullOrEmpty(quantity) && decimal.TryParse(quantity, out decimal qty) && qty > 0;
     }
 }
