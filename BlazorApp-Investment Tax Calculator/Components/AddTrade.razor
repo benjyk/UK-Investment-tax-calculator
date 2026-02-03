@@ -1,11 +1,16 @@
 ﻿@using InvestmentTaxCalculator.Model
+@using InvestmentTaxCalculator.Model.TaxEvents
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
 @using InvestmentTaxCalculator.ViewModel
 @using InvestmentTaxCalculator.Model.Interfaces
 @using Syncfusion.Blazor.Buttons
 @using InvestmentTaxCalculator.Services
 @using InvestmentTaxCalculator.Enumerations
+@using CsvHelper
+@using CsvHelper.Configuration
+@using System.Globalization
 
 @inject IJSRuntime JSRuntime
 @inject ITradeAndCorporateActionList tradeList
@@ -40,6 +45,23 @@
                 <li><strong>Currency:</strong> The 3-letter ISO 4217 code for the currency for the corresponding items.</li>
                 <li><strong>Exchange rate:</strong> The exchange rate used to convert the local currency to Sterling for the corresponding items.</li>
             </ul>
+        </div>
+
+        <!-- CSV Import Section -->
+        <div class="alert alert-secondary mt-4" role="alert">
+            <p class="mb-0"><strong>CSV Import:</strong></p>
+            <p>Upload a CSV file to bulk import trades. Required columns:</p>
+            <code>Asset Name,Date,Quantity,Acquisition/Disposal,Asset Category,Gross Proceeds Currency,Exchange Rate,Gross Proceeds</code>
+            <ul class="mt-2">
+                <li><strong>Date:</strong> Format: dd-MMM-yyyy (e.g., 19-Jul-2021)</li>
+                <li><strong>Acquisition/Disposal:</strong> "Acquisition" or "Disposal"</li>
+                <li><strong>Asset Category:</strong> "Stock", "Option", "Future contract", "Foreign currency", or "Bond"</li>
+            </ul>
+            <div class="mt-3">
+                <SfUploader ID="CsvUploader" AutoUpload="false" AllowedExtensions=".csv" Multiple="false">
+                    <UploaderEvents ValueChange="OnCsvFileUpload"></UploaderEvents>
+                </SfUploader>
+            </div>
         </div>
 
         <div class="control-section mt-4">
@@ -114,20 +136,43 @@
     public void OnImportTrade()
     {
         int importCount = inputGridDatas.TradeInputViewModels.Count;
+        int optionCount = 0, futureCount = 0, tradeCount = 0;
+
         foreach (TradeInputViewModel tradeInputViewModel in inputGridDatas.TradeInputViewModels)
         {
-            tradeList.Trades.Add(tradeInputViewModel.Convert());
+            Trade trade = tradeInputViewModel.Convert();
+
+            // Route to correct list based on trade type
+            if (trade is OptionTrade optionTrade)
+            {
+                tradeList.OptionTrades.Add(optionTrade);
+                optionCount++;
+            }
+            else if (trade is FutureContractTrade futureTrade)
+            {
+                tradeList.FutureContractTrades.Add(futureTrade);
+                futureCount++;
+            }
+            else
+            {
+                tradeList.Trades.Add(trade);
+                tradeCount++;
+            }
         }
         inputGridDatas.TradeInputViewModels.Clear();
         _addTradeGrid.Refresh();
-        int newTradeCount = tradeList.Trades.Count;
+
         if (importCount >= 1)
         {
-            toastService.ShowInformation($"{importCount} trade data added to system. New trade count: {newTradeCount}");
+            string message = $"{importCount} trade(s) added to system.";
+            if (optionCount > 0) message += $" Options: {optionCount}.";
+            if (futureCount > 0) message += $" Futures: {futureCount}.";
+            if (tradeCount > 0) message += $" Stocks/Other: {tradeCount}.";
+            toastService.ShowInformation(message);
         }
         else
         {
-            toastService.ShowError($"No trade data added. Table is empty. Trade count: {newTradeCount}.");
+            toastService.ShowError($"No trade data added. Table is empty.");
         }
     }
 
@@ -153,5 +198,110 @@
             DropDownSelectedTradeType = Args.Data.AcquisitionDisposal;
             DropDownAssetCategoryType = Args.Data.AssetType;
         }
+    }
+
+    private async Task OnCsvFileUpload(UploadChangeEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+            try
+            {
+                using var stream = file.File.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+                using var reader = new StreamReader(stream);
+                string csvContent = await reader.ReadToEndAsync();
+                ParseCsvTrades(csvContent);
+                await _addTradeGrid.Refresh();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowException(ex);
+            }
+        }
+        args.Files.Clear();
+    }
+
+    private void ParseCsvTrades(string csvContent)
+    {
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HeaderValidated = null,
+            MissingFieldFound = null
+        };
+
+        using var reader = new StringReader(csvContent);
+        using var csv = new CsvReader(reader, config);
+        csv.Read();
+        csv.ReadHeader();
+
+        int rowCount = 0;
+        int errorCount = 0;
+
+        while (csv.Read())
+        {
+            rowCount++;
+            try
+            {
+                var trade = new TradeInputViewModel
+                {
+                    AssetName = csv.GetField("Asset Name") ?? throw new InvalidDataException($"Row {rowCount}: Asset Name is required"),
+                    Date = ParseDate(csv.GetField("Date") ?? throw new InvalidDataException($"Row {rowCount}: Date is required")),
+                    Quantity = decimal.Parse(csv.GetField("Quantity") ?? throw new InvalidDataException($"Row {rowCount}: Quantity is required")),
+                    AcquisitionDisposal = ParseTradeType(csv.GetField("Acquisition/Disposal") ?? throw new InvalidDataException($"Row {rowCount}: Acquisition/Disposal is required")),
+                    AssetType = ParseAssetCategory(csv.GetField("Asset Category") ?? throw new InvalidDataException($"Row {rowCount}: Asset Category is required")),
+                    GrossProceedCurrency = csv.GetField("Gross Proceeds Currency") ?? "GBP",
+                    GrossProceedExchangeRate = decimal.Parse(csv.GetField("Exchange Rate") ?? "1"),
+                    GrossProceed = decimal.Parse(csv.GetField("Gross Proceeds") ?? throw new InvalidDataException($"Row {rowCount}: Gross Proceeds is required"))
+                };
+                inputGridDatas.TradeInputViewModels.Add(trade);
+            }
+            catch (Exception ex)
+            {
+                errorCount++;
+                toastService.ShowError($"Row {rowCount}: {ex.Message}");
+            }
+        }
+
+        if (rowCount - errorCount > 0)
+        {
+            toastService.ShowInformation($"{rowCount - errorCount} trades loaded from CSV. Click 'Import trade data' to add them to the system.");
+        }
+    }
+
+    private static DateTime ParseDate(string dateStr)
+    {
+        // Support multiple date formats
+        string[] formats = ["dd-MMM-yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "MM/dd/yyyy", "d-MMM-yyyy"];
+        if (DateTime.TryParseExact(dateStr, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+        {
+            return result;
+        }
+        if (DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+        {
+            return result;
+        }
+        throw new InvalidDataException($"Unable to parse date '{dateStr}'");
+    }
+
+    private static TradeType ParseTradeType(string value)
+    {
+        return value.ToLowerInvariant() switch
+        {
+            "acquisition" or "buy" or "acquire" => TradeType.ACQUISITION,
+            "disposal" or "sell" or "dispose" => TradeType.DISPOSAL,
+            _ => throw new InvalidDataException($"Unknown trade type '{value}'. Use 'Acquisition' or 'Disposal'.")
+        };
+    }
+
+    private static AssetCategoryType ParseAssetCategory(string value)
+    {
+        return value.ToLowerInvariant() switch
+        {
+            "stock" or "equity" or "share" => AssetCategoryType.STOCK,
+            "option" or "warrant" => AssetCategoryType.OPTION,
+            "future" or "future contract" or "futures" => AssetCategoryType.FUTURE,
+            "fx" or "foreign currency" or "forex" => AssetCategoryType.FX,
+            "bond" or "bonds" => AssetCategoryType.BOND,
+            _ => throw new InvalidDataException($"Unknown asset category '{value}'. Use 'Stock', 'Option', 'Future contract', 'Foreign currency', or 'Bond'.")
+        };
     }
 }

@@ -95,6 +95,34 @@ public class TradeInputViewModel
                 Expenses = [.. expenses],
                 Description = Description
             },
+            AssetCategoryType.OPTION => new OptionTrade()
+            {
+                AssetName = AssetName,
+                Date = Date,
+                Quantity = Quantity,
+                AcquisitionDisposal = AcquisitionDisposal,
+                AssetType = AssetType,
+                GrossProceed = grossProceedDescribed,
+                Expenses = [.. expenses],
+                Description = Description,
+                // Default values for manual option/warrant entry
+                Underlying = AssetName,
+                StrikePrice = WrappedMoney.GetBaseCurrencyZero(),
+                ExpiryDate = DateTime.MaxValue,
+                PUTCALL = PUTCALL.CALL,
+                Multiplier = 1
+            },
+            AssetCategoryType.BOND => new Trade()
+            {
+                AssetName = AssetName,
+                Date = Date,
+                Quantity = Quantity,
+                AcquisitionDisposal = AcquisitionDisposal,
+                AssetType = AssetType,
+                GrossProceed = grossProceedDescribed,
+                Expenses = [.. expenses],
+                Description = Description
+            },
             _ => throw new NotImplementedException(),
         };
     }
